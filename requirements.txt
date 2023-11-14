@@ -3,3 +3,4 @@ streamlit==0.88.0
 joblib==1.1.0
 nltk==3.6.2
 xgboost==1.4.2
+protobuf==3.20.0
