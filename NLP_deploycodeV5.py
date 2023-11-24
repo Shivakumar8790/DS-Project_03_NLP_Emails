@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 import streamlit as st
 import joblib
 import re
@@ -11,12 +8,10 @@ import string
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Download the 'stopwords' dataset if not already downloaded
 nltk.download('stopwords')
-
-# Load the pre-trained TF-IDF vectorizer
-vectorizer = joblib.load("TfidfVectorizer.pkl")
 
 # Load the trained SVC model
 model = joblib.load("XGBoost_Model.pkl")
@@ -24,6 +19,9 @@ model = joblib.load("XGBoost_Model.pkl")
 # Initialize the lemmatizer and stop words
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
+
+# Define and fit the TF-IDF vectorizer
+vectorizer = TfidfVectorizer()
 
 # Function to preprocess and predict the class of an email
 def predict_email_class(email_content):
@@ -40,8 +38,8 @@ def predict_email_class(email_content):
     words = nltk.word_tokenize(cleaned_email)
     cleaned_tokens = [lemmatizer.lemmatize(word) for word in words if word.lower() not in stop_words]
 
-    # Vectorize the cleaned email
-    email_vector = vectorizer.transform([' '.join(cleaned_tokens)])
+    # Fit and transform the TF-IDF vectorizer on the cleaned tokens
+    email_vector = vectorizer.fit_transform([' '.join(cleaned_tokens)])
 
     # Make the prediction
     predicted_class = model.predict(email_vector)
@@ -52,7 +50,7 @@ def predict_email_class(email_content):
 st.title("Email Classification")
 st.write("Enter an email to check if it's appropriate or not.")
 
-# Text input for user to enter email content
+# Text input for the user to enter email content
 email_content = st.text_area("Email Content:")
 
 if st.button("Check Email"):
