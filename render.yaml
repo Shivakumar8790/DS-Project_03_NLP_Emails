@@ -1,6 +1,0 @@
-env:
-  - TESSDATA_PREFIX=/workspace/tessdata
-start_cmd: streamlit run NLP_deploycodeV5.py
-
-env:
-  - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
