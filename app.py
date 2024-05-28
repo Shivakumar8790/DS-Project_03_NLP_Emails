@@ -10,6 +10,8 @@ from transformers import pipeline, MarianMTModel, MarianTokenizer
 import spacy
 from spacy.tokens import Span
 from spacy.language import Language
+from googletrans import Translator
+import googletrans
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -89,7 +91,6 @@ def recognize_entities(text):
     entities = [(ent.text, ent.label_) for ent in doc.ents]
     return entities
 
-
 # Perform part of speech tagging
 def pos_tagging(text):
     doc = nlp(text)
@@ -102,25 +103,29 @@ def identify_topics(text):
     result = topic_modeling(text, candidate_labels)
     return result['labels'][0]
 
-def translate_to_telugu(text):
-  """
-  Translates the provided text to Telugu using a pre-loaded tokenizer and translation model.
+# def translate_to_telugu(text, source_language="auto"):
+#     """Translates text to Telugu using the Google Translate API.
 
-  Args:
-      text: The text to be translated (str).
+#     Args:
+#         text: The text to be translated.
+#         source_language: The language code of the source text (optional, default is "auto").
 
-  Returns:
-      The translated text in Telugu (str) or an error message if translation fails.
-  """
-  if tokenizer and translation_model:
-    try:
-      translated = translation_model.generate(**tokenizer(text, return_tensors="pt", padding=True))
-      telugu_text = tokenizer.decode(translated[0], skip_special_tokens=True)
-      return telugu_text
-    except Exception as e:
-      return f"Translation error: {e}"
-  else:
-    return "Translation model is not available."
+#     Returns:
+#         The translated text in Telugu, or a message indicating translation failure.
+#     """
+#     translator = googletrans.Translator()
+#     try:
+#         print(f"Translating text: {text}")
+#         translation = translator.translate(text, dest="hi")
+#         print(f"Translation result: {translation.text}")
+#         return translation.text
+#     except Exception as e:
+#         print(f"An error occurred during translation: {e}")
+#         return None
+
+translator = Translator()
+
+
 
 @app.route('/')
 def index():
@@ -135,8 +140,17 @@ def classify_email():
         entities = recognize_entities(email_content)
         pos_tags = pos_tagging(email_content)
         topic = identify_topics(email_content)
-        translation = translate_to_telugu(email_content)
+
+        translation = translator.translate(email_content, dest='te')
+        print(translation.text)
         
+        # translation = translate_to_telugu(email_content)
+
+        # if translation:
+        #     print(f"Translated text (Telugu): {translation}")
+        # else:
+        #     print("Translation failed.")
+
         if predicted_class == 1:
             result = "This email is appropriate or Non-Abusive."
         else:
